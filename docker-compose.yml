@@ -6,7 +6,7 @@ services:
     container_name: great-loop-postgres
     restart: unless-stopped
     env_file:
-      - ./backend/.env
+      - .env
     environment:
       POSTGRES_USER: ${DB_USER:-landmarks_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-landmarks_password}
@@ -23,6 +23,69 @@ services:
       retries: 5
     networks:
       - great-loop-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: great-loop-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 4000
+      DATABASE_URL: postgres://${DB_USER:-landmarks_user}:${DB_PASSWORD:-landmarks_password}@postgres:5432/${DB_NAME:-landmarks_db}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - great-loop-network
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: great-loop-frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:4000}
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - great-loop-network
+    command: npm run dev -- --host
+
+  # Optional: pgadmin for database management
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: great-loop-pgadmin
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+  #   ports:
+  #     - '5050:80'
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - great-loop-network
 
 networks:
   great-loop-network:
