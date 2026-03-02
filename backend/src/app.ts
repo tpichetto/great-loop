@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 
@@ -26,6 +27,7 @@ app.use(helmet());
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // Parse cookies for refresh tokens
 
 // Serve Swagger UI at /api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -35,9 +37,9 @@ app.get('/api-docs.json', (req, res) => {
 });
 
 // Import routes
-import healthRoutes from './routes/health.routes';
 import authRoutes from './routes/auth.routes';
-import landmarkRoutes from './routes/landmarks.routes';
+import healthRoutes from './routes/health.routes';
+import landmarksRoutes from './routes/landmarks.routes';
 import progressRoutes from './routes/progress.routes';
 import commentRoutes from './routes/comments.routes';
 import userRoutes from './routes/users.routes';
@@ -46,7 +48,7 @@ import userRoutes from './routes/users.routes';
 const apiV1 = express();
 apiV1.use('/health', healthRoutes);
 apiV1.use('/auth', authRoutes);
-apiV1.use('/landmarks', landmarkRoutes);
+apiV1.use('/landmarks', landmarksRoutes);
 apiV1.use('/progress', progressRoutes);
 apiV1.use('/comments', commentRoutes);
 apiV1.use('/users', userRoutes);
