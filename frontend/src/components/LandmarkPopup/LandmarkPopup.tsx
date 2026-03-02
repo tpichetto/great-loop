@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMapStore } from '../../store/useMapStore';
-import { Landmark } from '../../types';
+import type { Landmark } from '../../types';
 import { landmarkAPI } from '../../services/api';
 import './LandmarkPopup.css';
 

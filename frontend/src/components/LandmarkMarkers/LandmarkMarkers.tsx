@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Marker, Popup, useMap } from 'react-leaflet';
 import { MarkerClusterGroup } from 'react-leaflet-markercluster';
 import L from 'leaflet';
-import { Landmark } from '../../types';
+import type { Landmark } from '../../types';
 import { getCachedIcon } from '../../services/markerIcons';
 import { LandmarkPopup } from '../LandmarkPopup/LandmarkPopup';
 

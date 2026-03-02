@@ -1,4 +1,13 @@
-import { Landmark, BoundingBox, UserLocation } from '../types';
+import type {
+  Landmark,
+  BoundingBox,
+  UserLocation,
+  User,
+  LoginCredentials,
+  RegisterData,
+  Comment,
+  CreateCommentData,
+} from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -113,5 +122,135 @@ export const landmarkAPI = {
 
       return true;
     });
+  },
+};
+
+// Auth API functions
+export const authAPI = {
+  // Login user
+  async login(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
+    return fetchAPI<{ user: User; token: string }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  },
+
+  // Register new user
+  async register(data: RegisterData): Promise<{ user: User; token: string }> {
+    return fetchAPI<{ user: User; token: string }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Logout (client-side only, but we might want to notify server)
+  async logout(): Promise<void> {
+    // Optionally call server logout endpoint if it exists
+    try {
+      await fetchAPI('/auth/logout', { method: 'POST' });
+    } catch {
+      // Ignore errors, client will clear state anyway
+    }
+  },
+
+  // Get current user profile
+  async getProfile(): Promise<User> {
+    return fetchAPI<User>('/users/profile');
+  },
+
+  // Update user profile
+  async updateProfile(data: Partial<User>): Promise<User> {
+    return fetchAPI<User>('/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Change password
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await fetchAPI('/users/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  },
+};
+
+// User progress API
+export const progressAPI = {
+  // Get user's visited/collected landmarks
+  async getProgress(): Promise<{ visitedLandmarks: string[]; collectedLandmarks: string[] }> {
+    return fetchAPI<{ visitedLandmarks: string[]; collectedLandmarks: string[] }>('/progress');
+  },
+
+  // Mark landmark as visited
+  async markVisited(landmarkId: string): Promise<void> {
+    await fetchAPI(`/progress/visited/${landmarkId}`, { method: 'POST' });
+  },
+
+  // Unmark landmark as visited
+  async unmarkVisited(landmarkId: string): Promise<void> {
+    await fetchAPI(`/progress/visited/${landmarkId}`, { method: 'DELETE' });
+  },
+
+  // Mark landmark as collected
+  async markCollected(landmarkId: string): Promise<void> {
+    await fetchAPI(`/progress/collected/${landmarkId}`, { method: 'POST' });
+  },
+
+  // Unmark landmark as collected
+  async unmarkCollected(landmarkId: string): Promise<void> {
+    await fetchAPI(`/progress/collected/${landmarkId}`, { method: 'DELETE' });
+  },
+};
+
+// Comments API
+export const commentsAPI = {
+  // Fetch comments for a landmark
+  async fetchByLandmark(landmarkId: string): Promise<Comment[]> {
+    return fetchAPI<Comment[]>(`/comments/landmark/${landmarkId}`);
+  },
+
+  // Create a new comment
+  async create(data: CreateCommentData): Promise<Comment> {
+    return fetchAPI<Comment>('/comments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Update a comment
+  async update(commentId: string, content: string): Promise<Comment> {
+    return fetchAPI<Comment>(`/comments/${commentId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ content }),
+    });
+  },
+
+  // Delete a comment
+  async delete(commentId: string): Promise<void> {
+    await fetchAPI(`/comments/${commentId}`, { method: 'DELETE' });
+  },
+
+  // Flag a comment for moderation
+  async flag(commentId: string, reason: string): Promise<void> {
+    await fetchAPI(`/comments/${commentId}/flag`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  },
+
+  // Fetch flagged comments (admin only)
+  async fetchFlagged(): Promise<Comment[]> {
+    return fetchAPI<Comment[]>('/comments/flagged');
+  },
+
+  // Approve a flagged comment (admin only)
+  async approve(commentId: string): Promise<void> {
+    await fetchAPI(`/comments/${commentId}/approve`, { method: 'POST' });
+  },
+
+  // Hide a comment (admin only)
+  async hide(commentId: string): Promise<void> {
+    await fetchAPI(`/comments/${commentId}/hide`, { method: 'POST' });
   },
 };

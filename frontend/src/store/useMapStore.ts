@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Landmark, UserLocation, MapFilters, ViewportState } from '../types';
+import type { Landmark, UserLocation, MapFilters, ViewportState } from '../types';
 
 interface MapStore {
   // State
