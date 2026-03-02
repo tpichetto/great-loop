@@ -4,7 +4,7 @@ import { MarkerClusterGroup } from 'react-leaflet-markercluster';
 import L from 'leaflet';
 import { Landmark } from '../../types';
 import { getCachedIcon } from '../../services/markerIcons';
-import LandmarkPopup from '../LandmarkPopup/LandmarkPopup';
+import { LandmarkPopup } from '../LandmarkPopup/LandmarkPopup';
 
 interface LandmarkMarkersProps {
   landmarks: Landmark[];
