@@ -7,6 +7,19 @@
     "frontend",
     "backend"
   ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "prepare": "husky install",
+    "db:start": "docker-compose up -d",
+    "db:stop": "docker-compose down",
+    "db:migrate": "psql -h ${DB_HOST:-localhost} -U ${DB_USER:-landmarks_user} -d ${DB_NAME:-landmarks_db} -f migrations/001_initial_schema.sql",
+    "db:seed": "psql -h ${DB_HOST:-localhost} -U ${DB_USER:-landmarks_user} -d ${DB_NAME:-landmarks_db} -f seeds/001_sample_data.sql",
+    "db:rollback": "psql -h ${DB_HOST:-localhost} -U ${DB_USER:-landmarks_user} -d ${DB_NAME:-landmarks_db} -f migrations/001_initial_schema_down.sql",
+    "db:validate": "node scripts/validate-db.js",
+    "db:reset": "npm run db:rollback && npm run db:migrate && npm run db:seed"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
@@ -21,10 +34,8 @@
     "prettier": "^3.0.0",
     "typescript": "^5.0.0"
   },
-  "scripts": {
-    "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
-    "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "prepare": "husky install"
-  }
+  "dependencies": {
+    "pg": "^8.11.0"
+  },
+  "license": "MIT"
 }
