@@ -34,43 +34,129 @@ The `landmarks.location` column uses `GEOGRAPHY(Point, 4326)` for:
 - Spatial queries across the globe
 - No projection headaches (uses WGS84)
 
-## Quick Start
+## Development Setup
 
-### 1. Start Database
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+### 1. Environment Configuration
+
+Copy `.env.example` to `.env` and adjust variables as needed:
+
+```bash
+cp .env.example .env
+```
+
+At minimum, generate a strong `JWT_SECRET` (minimum 32 characters) for authentication.
+
+### 2. Start All Services
 
 ```bash
 docker-compose up -d
 ```
 
-This starts PostgreSQL with PostGIS on port 5432.
+This starts:
 
-### 2. Run Migrations
+- PostgreSQL with PostGIS on port 5432
+- Backend API on port 4000
+- Frontend (Vite dev server) on port 5173
+- (Optional) pgAdmin on port 5050 if enabled in docker-compose.yml
 
-Using Node.js validation/migration runner:
+### 3. Apply Database Schema
 
-```bash
-node scripts/validate-db.js
-```
-
-Or manually with psql:
-
-```bash
-psql -h localhost -U landmarks_user -d landmarks_db -f migrations/001_initial_schema.sql
-```
-
-### 3. Load Seed Data (Optional)
+Run migrations from the project root:
 
 ```bash
-psql -h localhost -U landmarks_user -d landmarks_db -f seeds/001_sample_data.sql
+npm run db:migrate
 ```
 
-### 4. Validate Setup
+This executes the SQL migration files against the database.
+
+### 4. (Optional) Load Seed Data
 
 ```bash
-node scripts/validate-db.js
-# or
-python3 scripts/validate-db.py
+npm run db:seed
 ```
+
+### 5. Access the Application
+
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:4000
+- **API Health Check**: http://localhost:4000/api/health (if available)
+- **Database**: localhost:5432
+- **pgAdmin** (if enabled): http://localhost:5050 (email: `admin@example.com`, password: `admin`)
+
+### 6. Hot Reload
+
+Both frontend and backend are mounted as volumes, so code changes are reflected immediately:
+
+- Backend uses `nodemon` to restart on changes
+- Frontend uses Vite's fast HMR
+
+### 7. Stopping the Environment
+
+```bash
+docker-compose down
+```
+
+To also remove database data volumes:
+
+```bash
+docker-compose down -v
+```
+
+### 8. Viewing Logs
+
+```bash
+docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f postgres
+```
+
+## Production Deployment
+
+### Build Production Images
+
+```bash
+# Backend
+docker build -t great-loop-backend:prod -f backend/Dockerfile.prod .
+
+# Frontend
+docker build -t great-loop-frontend:prod -f frontend/Dockerfile.prod .
+```
+
+### Run Production Containers
+
+Use a production-oriented `docker-compose.prod.yml` (create as needed) or run containers directly:
+
+```bash
+docker run -d \
+  --name backend \
+  -p 4000:4000 \
+  -e DATABASE_URL=postgres://user:pass@host:5432/dbname \
+  -e JWT_SECRET=your_production_secret \
+  -e NODE_ENV=production \
+  great-loop-backend:prod
+```
+
+```bash
+docker run -d \
+  --name frontend \
+  -p 80:80 \
+  -e VITE_API_URL=https://your-api.example.com \
+  great-loop-frontend:prod
+```
+
+### Notes for Production
+
+- Use a managed PostgreSQL service (Supabase, AWS RDS, etc.) with PostGIS enabled
+- Set strong secrets for `JWT_SECRET`
+- Configure `VITE_API_URL` to point to the production backend
+- Use HTTPS (terminate at nginx for frontend or at load balancer)
+- The frontend nginx image serves static files on port 80; adjust as needed for SSL
+- The backend uses a multi-stage build to minimize image size
 
 ## Sample Landmarks (10 diverse locations)
 
