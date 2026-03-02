@@ -12,8 +12,8 @@ RUN npm ci --ignore-scripts
 # Copy source code
 COPY . .
 
-# Expose port (matches PORT env var in docker-compose)
-EXPOSE 4000
+# Set working directory to backend workspace
+WORKDIR /app/backend
 
 # Start development server with hot-reload
-CMD ["npm", "run", "dev", "--workspace=backend"]
+CMD ["npm", "run", "dev"]

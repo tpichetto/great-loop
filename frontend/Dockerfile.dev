@@ -12,9 +12,9 @@ RUN npm ci --ignore-scripts
 # Copy source code
 COPY . .
 
-# Expose port (Vite default)
-EXPOSE 5173
+# Set working directory to frontend workspace
+WORKDIR /app/frontend
 
 # Start development server with hot-reload and host flag
 # The --host flag makes Vite accessible from outside the container
-CMD ["npm", "run", "dev", "--workspace=frontend", "--", "--host"]
+CMD ["npm", "run", "dev", "--", "--host"]
