@@ -1,0 +1,14 @@
+[
+  {
+    "sha": "5b210931bfae0456745c9fee5879ca7ba8c4d9f6",
+    "filename": "backend/test-swagger.js",
+    "status": "added",
+    "additions": 15,
+    "deletions": 0,
+    "changes": 15,
+    "blob_url": "https://github.com/tpichetto/great-loop/blob/d1b1ad09d635aa8b362fb3fa40e332b8e2de8378/backend%2Ftest-swagger.js",
+    "raw_url": "https://github.com/tpichetto/great-loop/raw/d1b1ad09d635aa8b362fb3fa40e332b8e2de8378/backend%2Ftest-swagger.js",
+    "contents_url": "https://api.github.com/repos/tpichetto/great-loop/contents/backend%2Ftest-swagger.js?ref=d1b1ad09d635aa8b362fb3fa40e332b8e2de8378",
+    "patch": "@@ -0,0 +1,15 @@\n+// Test script to validate Swagger spec generation\n+import { swaggerSpec } from './src/swagger.js';\n+\n+console.log('Swagger spec generated successfully!');\n+console.log(`Total paths: ${Object.keys(swaggerSpec.paths).length}`);\n+console.log('\\nPaths:');\n+Object.keys(swaggerSpec.paths).forEach((path) => {\n+  const methods = Object.keys(swaggerSpec.paths[path]);\n+  console.log(`  ${path}: ${methods.join(', ')}`);\n+});\n+\n+console.log('\\nSchemas:');\n+Object.keys(swaggerSpec.components.schemas).forEach((schema) => {\n+  console.log(`  - ${schema}`);\n+});"
+  }
+]
