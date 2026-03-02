@@ -3,26 +3,71 @@ import pool from '../config/database';
 
 const router = Router();
 
-// Helper to calculate distance between two points (Haversine formula)
-function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371; // Earth radius in km
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lng2 - lng1);
-  const lat1Rad = toRad(lat1);
-  const lat2Rad = toRad(lat2);
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
-function toRad(deg: number): number {
-  return deg * (Math.PI / 180);
-}
-
-// GET /api/landmarks - fetch landmarks within bounding box
+/**
+ * @swagger
+ * /landmarks:
+ *   get:
+ *     summary: List landmarks
+ *     description: Retrieve landmarks within a bounding box with optional category filter
+ *     tags:
+ *       - Landmarks
+ *     parameters:
+ *       - in: query
+ *         name: minLat
+ *         schema:
+ *           type: number
+ *           format: float
+ *         description: Minimum latitude of bounding box
+ *         required: true
+ *       - in: query
+ *         name: maxLat
+ *         schema:
+ *           type: number
+ *           format: float
+ *         description: Maximum latitude of bounding box
+ *         required: true
+ *       - in: query
+ *         name: minLng
+ *         schema:
+ *           type: number
+ *           format: float
+ *         description: Minimum longitude of bounding box
+ *         required: true
+ *       - in: query
+ *         name: maxLng
+ *         schema:
+ *           type: number
+ *           format: float
+ *         description: Maximum longitude of bounding box
+ *         required: true
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *           enum: [historical, natural, cultural, architectural, recreational]
+ *         description: Filter by landmark category
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 100
+ *         description: Maximum number of results to return
+ *     responses:
+ *       200:
+ *         description: List of landmarks
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Landmark'
+ *       400:
+ *         $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         $ref: '#/components/schemas/ErrorResponse'
+ */
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { minLat, maxLat, minLng, maxLng, category, limit = 100 } = req.query;
@@ -107,7 +152,34 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/landmarks/:id - fetch single landmark
+/**
+ * @swagger
+ * /landmarks/{id}:
+ *   get:
+ *     summary: Get landmark by ID
+ *     description: Retrieve detailed information about a specific landmark
+ *     tags:
+ *       - Landmarks
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: UUID of the landmark
+ *     responses:
+ *       200:
+ *         description: Landmark found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Landmark'
+ *       404:
+ *         $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         $ref: '#/components/schemas/ErrorResponse'
+ */
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -170,7 +242,50 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/landmarks/near - fetch landmarks near a point
+/**
+ * @swagger
+ * /landmarks/near:
+ *   get:
+ *     summary: Find nearby landmarks
+ *     description: Retrieve landmarks within a radius of a given point
+ *     tags:
+ *       - Landmarks
+ *     parameters:
+ *       - in: query
+ *         name: lat
+ *         schema:
+ *           type: number
+ *           format: float
+ *         description: Latitude of the center point
+ *         required: true
+ *       - in: query
+ *         name: lng
+ *         schema:
+ *           type: number
+ *           format: float
+ *         description: Longitude of the center point
+ *         required: true
+ *       - in: query
+ *         name: radius
+ *         schema:
+ *           type: number
+ *           format: float
+ *         description: Radius in kilometers
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: List of nearby landmarks with distance information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Landmark'
+ *       400:
+ *         $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         $ref: '#/components/schemas/ErrorResponse'
+ */
 router.get('/near', async (req: Request, res: Response) => {
   try {
     const { lat, lng, radius } = req.query;
