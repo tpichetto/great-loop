@@ -5,6 +5,9 @@
 
 BEGIN;
 
+-- Enable PostGIS extension
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -25,11 +28,15 @@ CREATE TABLE IF NOT EXISTS landmarks (
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
     location GEOGRAPHY(Point, 4326) NOT NULL,
-    category VARCHAR(100) NOT NULL CHECK (category IN ('historical', 'natural', 'cultural', 'architectural', 'recreational')),
+    category VARCHAR(100) NOT NULL CHECK (category IN ('attraction', 'restaurant', 'park', 'museum', 'historic', 'nature', 'entertainment', 'shopping')),
     image_urls TEXT[] NOT NULL DEFAULT '{}',
     opening_hours JSONB NULL,
     admission_fee DECIMAL(10, 2) NULL,
     contact_info JSONB NULL,
+    rating DECIMAL(2, 1) CHECK (rating >= 0 AND rating <= 5) NULL,
+    review_count INTEGER DEFAULT 0,
+    price_level INTEGER CHECK (price_level >= 1 AND price_level <= 4) NULL,
+    tags TEXT[] DEFAULT '{}',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
