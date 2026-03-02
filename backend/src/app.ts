@@ -27,9 +27,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Import routes
 import healthRoutes from './routes/health.routes';
+import landmarksRoutes from './routes/landmarks.routes';
 
 // Use routes
 app.use('/api', healthRoutes);
+app.use('/api/landmarks', landmarksRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
