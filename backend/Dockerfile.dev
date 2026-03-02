@@ -6,8 +6,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY backend/package*.json ./backend/
 
-# Install dependencies
-RUN npm ci --workspace=backend --ignore-scripts
+# Install dependencies (all workspaces)
+RUN npm ci --ignore-scripts
 
 # Copy source code
 COPY . .
