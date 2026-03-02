@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Copy package files first for better caching
 COPY package*.json ./
+COPY backend/package*.json ./backend/
 
 # Install dependencies
 RUN npm ci --workspace=backend --ignore-scripts
