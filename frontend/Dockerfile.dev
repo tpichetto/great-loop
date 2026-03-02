@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --workspace=frontend --ignore-scripts
 
 # Copy source code
 COPY . .
@@ -16,4 +16,4 @@ EXPOSE 5173
 
 # Start development server with hot-reload and host flag
 # The --host flag makes Vite accessible from outside the container
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["npm", "run", "dev", "--workspace=frontend", "--", "--host"]

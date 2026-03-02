@@ -24,8 +24,8 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: backend/Dockerfile.dev
     container_name: great-loop-backend
     restart: unless-stopped
     env_file:
@@ -50,8 +50,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: frontend/Dockerfile.dev
     container_name: great-loop-frontend
     restart: unless-stopped
     env_file:
