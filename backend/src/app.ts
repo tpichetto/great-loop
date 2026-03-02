@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 
 // Load environment variables
 dotenv.config();
@@ -24,11 +25,14 @@ app.use(helmet());
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // Parse cookies for refresh tokens
 
 // Import routes
-import healthRoutes from './routes/health.routes';
+import authRoutes from './routes/auth.routes';;
+import healthRoutes from './routes/health.routes';;
 
 // Use routes
+app.use('/api/auth', authRoutes);
 app.use('/api', healthRoutes);
 
 // Error handling middleware
