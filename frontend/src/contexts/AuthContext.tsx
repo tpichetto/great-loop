@@ -1,11 +1,11 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { User, AuthState, LoginCredentials, RegisterData } from '../types';
-import { authAPI } from '../services/api';
+import { authAPI, setAccessToken } from '../services/api';
 
 type AuthAction =
   | { type: 'AUTH_START' }
-  | { type: 'AUTH_SUCCESS'; payload: { user: User; token: string } }
+  | { type: 'AUTH_SUCCESS'; payload: { user: User } }
   | { type: 'AUTH_FAILURE' }
   | { type: 'LOGOUT' }
   | { type: 'SET_LOADING'; payload: boolean };
@@ -20,7 +20,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const initialState: AuthState = {
   user: null,
-  token: null,
   isAuthenticated: false,
   isLoading: true,
 };
@@ -33,7 +32,6 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return {
         ...state,
         user: action.payload.user,
-        token: action.payload.token,
         isAuthenticated: true,
         isLoading: false,
       };
@@ -41,7 +39,6 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return {
         ...state,
         user: null,
-        token: null,
         isAuthenticated: false,
         isLoading: false,
       };
@@ -49,7 +46,6 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return {
         ...state,
         user: null,
-        token: null,
         isAuthenticated: false,
         isLoading: false,
       };
@@ -63,20 +59,21 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Check for existing token on mount
+  // Check for existing session on mount (using refresh token)
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const user = await authAPI.getProfile();
-          dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
-        } catch {
-          localStorage.removeItem('token');
-          dispatch({ type: 'AUTH_FAILURE' });
-        }
-      } else {
-        dispatch({ type: 'SET_LOADING', payload: false });
+      try {
+        // Attempt to refresh token using the HTTP-only refresh cookie
+        const { token: newToken } = await authAPI.refreshToken();
+        // Store the new access token in memory
+        setAccessToken(newToken);
+        // Fetch the current user profile
+        const user = await authAPI.getCurrentUser();
+        dispatch({ type: 'AUTH_SUCCESS', payload: { user } });
+      } catch {
+        // No valid session, clear any token and stay logged out
+        setAccessToken(null);
+        dispatch({ type: 'AUTH_FAILURE' });
       }
     };
 
@@ -87,8 +84,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'AUTH_START' });
     try {
       const { user, token } = await authAPI.login(credentials);
-      localStorage.setItem('token', token);
-      dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
+      // Store token in memory (not localStorage)
+      setAccessToken(token);
+      dispatch({ type: 'AUTH_SUCCESS', payload: { user } });
     } catch (error) {
       dispatch({ type: 'AUTH_FAILURE' });
       throw error;
@@ -99,7 +97,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await authAPI.logout();
     } finally {
-      localStorage.removeItem('token');
+      // Clear in-memory token
+      setAccessToken(null);
       dispatch({ type: 'LOGOUT' });
     }
   };
@@ -108,8 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'AUTH_START' });
     try {
       const { user, token } = await authAPI.register(data);
-      localStorage.setItem('token', token);
-      dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
+      setAccessToken(token);
+      dispatch({ type: 'AUTH_SUCCESS', payload: { user } });
     } catch (error) {
       dispatch({ type: 'AUTH_FAILURE' });
       throw error;
