@@ -49,7 +49,9 @@ export function ProfilePage() {
       <div className="profile-content">
         <div className="profile-card">
           <div className="profile-section">
-            <div className="profile-avatar">{user?.name?.charAt(0).toUpperCase()}</div>
+            <div className="profile-avatar">
+              {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
+            </div>
 
             <div className="profile-info">
               {isEditing ? (

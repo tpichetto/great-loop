@@ -62,7 +62,9 @@ export function Header() {
                 className="user-avatar-btn"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
               >
-                <span className="avatar">{user?.name?.charAt(0).toUpperCase()}</span>
+                <span className="avatar">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
+                </span>
               </button>
 
               {userDropdownOpen && (
