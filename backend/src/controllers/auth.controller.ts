@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import pool from '../config/database';;
+import pool from '../config/database';
 import crypto from 'crypto';
 import {
   hashPassword,
@@ -10,14 +10,8 @@ import {
   isValidEmail,
   isValidPassword,
   sanitizeUser,
-} from '../utils/auth.utils';;
-import {
-  User,
-  UserRole,
-  RefreshToken,
-  AuthResponse,
-  RefreshResponse,
-} from '../types/auth.types';;
+} from '../utils/auth.utils';
+import { User, UserRole, RefreshToken, AuthResponse, RefreshResponse } from '../types/auth.types';
 
 /**
  * Get cookie options for refresh token based on environment
@@ -48,13 +42,24 @@ function getCookieOptions(): {
  */
 export async function register(req: any, res: Response): Promise<void> {
   try {
-    const { email, password, first_name, last_name } = req.body;
+    const { email, password, first_name, last_name, name } = req.body;
+
+    // Handle both formats: {first_name, last_name} or {name}
+    let finalFirstName = first_name;
+    let finalLastName = last_name;
+
+    if ((!first_name || !last_name) && name) {
+      // Split full name into first and last name
+      const parts = name.trim().split(' ');
+      finalFirstName = parts[0] || '';
+      finalLastName = parts.slice(1).join(' ') || '';
+    }
 
     // Validate required fields
-    if (!email || !password || !first_name || !last_name) {
+    if (!email || !password || !finalFirstName || !finalLastName) {
       res.status(400).json({
         error: 'Bad Request',
-        message: 'All fields are required: email, password, first_name, last_name',
+        message: 'All fields are required: email, password, and name (or first_name and last_name)',
       });
       return;
     }
@@ -103,8 +108,8 @@ export async function register(req: any, res: Response): Promise<void> {
       [
         email.toLowerCase().trim(),
         passwordHash,
-        first_name.trim(),
-        last_name.trim(),
+        finalFirstName.trim(),
+        finalLastName.trim(),
         UserRole.USER,
       ],
     );
