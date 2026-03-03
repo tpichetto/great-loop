@@ -9,7 +9,7 @@ import { InteractiveMap } from '../InteractiveMap/InteractiveMap';
 import { LandmarkMarkers } from '../LandmarkMarkers/LandmarkMarkers';
 import { LandmarkDetails } from '../LandmarkDetails/LandmarkDetails';
 import { SearchFilterControls } from '../SearchFilterControls/SearchFilterControls';
-import { Landmark } from '../../types';
+import type { Landmark } from '../../types';
 import './MapPage.css';
 
 // Helper component to trigger data fetching on bounds change

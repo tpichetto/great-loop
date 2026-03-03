@@ -1,5 +1,5 @@
 import { useMapStore } from '../../store/useMapStore';
-import { LandmarkCategory } from '../../types';
+import type { LandmarkCategory } from '../../types';
 import './SearchFilterControls.css';
 
 const CATEGORIES: { value: LandmarkCategory; label: string; emoji: string }[] = [

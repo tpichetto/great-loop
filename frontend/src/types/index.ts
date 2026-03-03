@@ -63,3 +63,49 @@ export interface LandmarkPopupData {
   landmark: Landmark;
   distance?: number; // distance from user location in km
 }
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'user' | 'admin';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  name: string;
+}
+
+export interface Comment {
+  id: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  landmarkId: string;
+  parentId?: string;
+  isHidden: boolean;
+  flagReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCommentData {
+  content: string;
+  landmarkId: string;
+  parentId?: string;
+}

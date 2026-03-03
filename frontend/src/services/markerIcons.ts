@@ -1,5 +1,5 @@
 import { DivIcon } from 'leaflet';
-import { LandmarkCategory } from '../types';
+import type { LandmarkCategory } from '../types';
 
 // Define colors for each category
 const categoryColors: Record<LandmarkCategory, string> = {

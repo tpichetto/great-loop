@@ -9,11 +9,9 @@
 }
 
 html,
-body,
-#root {
+body {
   height: 100%;
   width: 100%;
-  overflow: hidden;
 }
 
 body {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { UserLocation } from '../types';
+import type { UserLocation } from '../types';
 
 interface UseGeolocationOptions {
   enableHighAccuracy?: boolean;

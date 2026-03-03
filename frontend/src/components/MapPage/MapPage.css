@@ -1,8 +1,7 @@
 .map-page-container {
   display: flex;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+  height: 100%;
+  width: 100%;
 }
 
 .sidebar-left {
@@ -20,6 +19,7 @@
 .map-container {
   flex: 1;
   position: relative;
+  min-height: 400px;
 }
 
 .locate-btn-primary {
@@ -68,6 +68,7 @@
 @media (max-width: 768px) {
   .map-page-container {
     flex-direction: column;
+    height: auto;
   }
 
   .sidebar-left {
@@ -80,7 +81,8 @@
   }
 
   .map-container {
-    height: 60vh;
+    height: 50vh;
+    min-height: 300px;
     order: 1; /* Map on top */
   }
 

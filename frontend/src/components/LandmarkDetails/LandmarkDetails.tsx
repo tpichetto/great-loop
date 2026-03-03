@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Landmark } from '../../types';
+import type { Landmark } from '../../types';
 import { useMapStore } from '../../store/useMapStore';
 import { landmarkAPI } from '../../services/api';
 import './LandmarkDetails.css';
