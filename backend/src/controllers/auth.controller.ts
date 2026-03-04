@@ -56,10 +56,10 @@ export async function register(req: any, res: Response): Promise<void> {
     }
 
     // Validate required fields
-    if (!email || !password || !finalFirstName || !finalLastName) {
+    if (!email || !password || !finalFirstName) {
       res.status(400).json({
         error: 'Bad Request',
-        message: 'All fields are required: email, password, and name (or first_name and last_name)',
+        message: 'Email, password, and at least a first name (or name) are required',
       });
       return;
     }

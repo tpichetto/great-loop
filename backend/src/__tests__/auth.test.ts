@@ -1,6 +1,6 @@
 import request from 'supertest';
 import app from '../app';
-import pool from '../config/database';;
+import pool from '../config/database';
 
 // Increase timeout for slow operations (bcrypt)
 jest.setTimeout(30000);
@@ -11,13 +11,15 @@ describe('Authentication Endpoints', () => {
   const firstName = 'Test';
   const lastName = 'User';
   let userId: string;
+  let singleWordUserId: string;
 
   afterAll(async () => {
-    // Cleanup: delete test user and associated data
-    if (userId) {
+    // Cleanup: delete test users and associated data
+    const idsToClean = [userId, singleWordUserId].filter(Boolean) as string[];
+    for (const id of idsToClean) {
       try {
-        await pool.query('DELETE FROM refresh_tokens WHERE user_id = $1', [userId]);
-        await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+        await pool.query('DELETE FROM refresh_tokens WHERE user_id = $1', [id]);
+        await pool.query('DELETE FROM users WHERE id = $1', [id]);
       } catch (e) {
         console.error('Cleanup error:', e);
       }
@@ -52,6 +54,29 @@ describe('Authentication Endpoints', () => {
     const refreshCookie = cookieHeader.find((c) => c.startsWith('refresh_token='));
     expect(refreshCookie).toBeDefined();
     expect(refreshCookie).toContain('HttpOnly');
+  });
+
+  test('POST /api/auth/register - should register user with single-word name', async () => {
+    const singleWordEmail = `test_${Date.now()}@example.com`;
+    const response = await request(app).post('/api/auth/register').send({
+      email: singleWordEmail,
+      password,
+      name: 'Madonna', // single-word name
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('user');
+    expect(response.body.user.email).toBe(singleWordEmail);
+    expect(response.body.user.first_name).toBe('Madonna');
+    expect(response.body.user.last_name).toBe('');
+    expect(response.body.user.role).toBe('user');
+    expect(response.body).toHaveProperty('accessToken');
+
+    // Store for cleanup
+    singleWordUserId = response.body.user.id;
+
+    // Check refresh token cookie is set
+    expect(response.headers['set-cookie']).toBeDefined();
   });
 
   test('POST /api/auth/register - should reject weak password', async () => {
