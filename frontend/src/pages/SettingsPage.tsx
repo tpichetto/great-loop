@@ -24,8 +24,13 @@ export function SettingsPage() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setMessage({ type: 'error', text: 'Password must be at least 6 characters' });
+    // Password strength validation: 8+ chars, uppercase, lowercase, number, special char
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      setMessage(
+        'Password must be at least 8 characters and include uppercase, lowercase, number, and special character',
+      );
       return;
     }
 
@@ -96,7 +101,7 @@ export function SettingsPage() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
                   disabled={isChangingPassword}
-                  minLength={6}
+                  minLength={8}
                 />
               </div>
 
