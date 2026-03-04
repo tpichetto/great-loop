@@ -95,7 +95,7 @@ export function RegisterPage() {
               required
               disabled={isLoading}
               placeholder="Create a password"
-              minLength={6}
+              minLength={8}
             />
           </div>
 
