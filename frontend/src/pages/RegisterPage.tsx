@@ -21,13 +21,18 @@ export function RegisterPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    // Password strength validation: 8+ chars, uppercase, lowercase, number, special char
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError(
+        'Password must be at least 8 characters and include uppercase, lowercase, number, and special character',
+      );
       return;
     }
 
     try {
-      await register({ email, password, name });
+      await register({ email, password, name: name.trim() });
       navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');

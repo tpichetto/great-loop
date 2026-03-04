@@ -73,6 +73,23 @@ const queryClient = new QueryClient({
   },
 });
 
+// Global 401 error handling - redirect to login
+queryClient.getQueryCache().subscribe({
+  next: (event) => {
+    if (event.state.error && (event.state.error as any).status === 401) {
+      window.location.href = '/login';
+    }
+  },
+});
+
+queryClient.getMutationCache().subscribe({
+  next: (event) => {
+    if (event.state.error && (event.state.error as any).status === 401) {
+      window.location.href = '/login';
+    }
+  },
+});
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -184,14 +201,16 @@ function App() {
 
             {/* Full-screen layout routes */}
             <Route path="/map" element={<FullScreenLayout />}>
-              <Route
-                index
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <MapPage />
-                  </Suspense>
-                }
-              />
+              <Route element={<ProtectedRoute />}>
+                <Route
+                  index
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <MapPage />
+                    </Suspense>
+                  }
+                />
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>
