@@ -242,7 +242,7 @@ export const authAPI = {
   // Logout - revoke session and clear refresh token cookie
   async logout(): Promise<void> {
     try {
-      await fetchAPI('/auth/logout', { method: 'POST' });
+      await fetchAPI('/auth/logout', { method: 'POST', credentials: 'include' });
     } catch {
       // Ignore errors, client will clear state anyway
     }
